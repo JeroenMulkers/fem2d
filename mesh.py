@@ -49,8 +49,7 @@ class Element:
         return self.region.calcTensor()
 
     def calcSourceVec(self):
-        Tee = self.region.source*self.area/3
-        return array([[Tee],[Tee],[Tee]])
+        return 3*[self.region.source*self.area/3]
 
     def calcDiffMat(self):
         k = self.calcTensor()
