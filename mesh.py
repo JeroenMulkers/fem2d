@@ -44,14 +44,11 @@ class Element:
         self.b = [n2.y-n3.y,n3.y-n1.y,n1.y-n2.y];
         self.c = [n3.x-n2.x,n1.x-n3.x,n2.x-n1.x];
 
-    def calcTensor(self):
-        return self.region.calcTensor()
-
     def calcSourceVec(self):
         return 3*[self.region.source*self.area/3]
 
     def calcDiffMat(self):
-        k = self.calcTensor()
+        k = self.region.calcTensor()
         self.Ke = np.zeros((3,3))
         for j in range(3):
             coefj = array([[self.b[j]],[self.c[j]]])
