@@ -1,7 +1,6 @@
 import numpy as np
 from numpy import array, cos, sin
 from material import materials
-from scipy.sparse import coo_matrix
 from scipy.sparse import lil_matrix
 from scipy.sparse.linalg import spsolve
 
