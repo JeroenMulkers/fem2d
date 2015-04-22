@@ -9,12 +9,12 @@ from scipy.sparse.linalg import spsolve
 
 class Node:
 
-    def __init__(n,id,x,y,boundary=False,value=None):
-        n.id = id
-        n.x = x
-        n.y = y
-        n.boundary = boundary
-        n.value = value
+    def __init__(self,id,x,y,boundary=False,value=None):
+        self.id = id
+        self.x = x
+        self.y = y
+        self.boundary = boundary
+        self.value = value
 
 ###############################################################################
 
