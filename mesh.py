@@ -92,7 +92,7 @@ class Mesh:
                             K[ni.id,nj.id] += Ke[i,j]
 
         # solve the system of linear equations and put solution on nodes
-        solution = spsolve(K,rhs)
+        solution = spsolve(K.tocsr(),rhs)
         for i in range(len(solution)):
             self.node[i].value = solution[i]
 
@@ -166,7 +166,7 @@ class Mesh:
         ax.plot_trisurf(x, y, tri, z, cmap=cm.jet, linewidth=0.2)
         pyplot.show()
 
-    def getUnstructuredGrid(self):
+    def getVtkUnstructuredGrid(self):
         import vtk
 
         ugrid = vtk.vtkUnstructuredGrid()
@@ -189,48 +189,20 @@ class Mesh:
                 cell.InsertNextId(e.node[i].id)
             ugrid.InsertNextCell(vtk.VTK_TRIANGLE,cell)
 
-        #writer = vtk.vtkUnstructuredGridWriter()
-        #writer.SetInput(ugrid)
-        #writer.SetFileName("out.vtk")
-        #writer.Write()
         return ugrid
 
-    def writeVTKfile(self):
-
-        NP = len(self.node)
-        NE = len(self.element)
-
-        filename = "output.vtk"
-        fid = open(filename,"w")
-
-        fid.write("# vtk DataFile Version 1.0\n")
-        fid.write("title\n")
-        fid.write("ASCII\n")
-        fid.write("DATASET UNSTRUCTURED_GRID\n")
-
-        fid.write("POINTS %d float\n"%NP)
-        for n in self.node:
-            fid.write("%f %f %f\n"%(n.x,n.y,0.0))
-
-        fid.write("CELLS %d %d\n"%(NE,4*NE))
-        for e in self.element:
-            fid.write("%d %d %d %d\n"%(3,e.node[0].id,e.node[1].id,e.node[2].id))
-
-        fid.write("CELL_TYPES %d\n"%NE)
-        for i in range(NE):
-            fid.write("5\n")
-
-        fid.write("POINT_DATA %d\n"%NP)
-
-        fid.write("SCALARS solution float\n")
-        fid.write("LOOKUP_TABLE default\n")
-        for n in self.node:
-            fid.write("%f\n"%n.value)
-        fid.close()
+    def writeVTKfile(self,filename):
+        import vtk
+        ugrid = self.getVtkUnstructuredGrid()
+        writer = vtk.vtkUnstructuredGridWriter()
+        writer.SetInputData(ugrid)
+        writer.SetFileName(filename)
+        writer.Write()
 
 ###############################################################################
 
 if __name__ == "__main__":
     mesh = Mesh("./Prob1_thermal_convdiff/")
     mesh.solve()
-    mesh.getUnstructuredGrid()
+    mesh.showSolution()
+    mesh.writeVTKfile("out.vtk")
