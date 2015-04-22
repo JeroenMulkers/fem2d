@@ -153,17 +153,32 @@ class Mesh:
 
     def getUnstructuredGrid(self):
         import vtk
-        grid = vtk.vtkUnstructuredGrid()
+
+        ugrid = vtk.vtkUnstructuredGrid()
+
+        # insert point and point data
         points = vtk.vtkPoints()
-        points.SetNumberOfPoints(len(self.node))
+        array  = vtk.vtkFloatArray()
         for n in self.node:
             points.InsertPoint(n.id,n.x,n.y,0.0)
-        grid.SetPoints(points)
-        mapper = vtk.vtkDataSetMapper()
-        mapper.SetInputData(grid)
-        actor = vtk.vtkActor()
-        actor.SetMapper(mapper)
-        return grid
+            array.InsertNextValue(n.value)
+        ugrid.SetPoints(points)
+        ugrid.GetPointData().SetScalars(array)
+
+        #insert cells and cell data
+        celldat = vtk.vtkFloatArray()
+        celldat.InsertNextValue(11)
+        for e in self.element:
+            cell = vtk.vtkIdList()
+            for i in [0,1,2]:
+                cell.InsertNextId(e.node[i].id)
+            ugrid.InsertNextCell(vtk.VTK_TRIANGLE,cell)
+
+        #writer = vtk.vtkUnstructuredGridWriter()
+        #writer.SetInput(ugrid)
+        #writer.SetFileName("out.vtk")
+        #writer.Write()
+        return ugrid
 
     def writeVTKfile(self):
 
@@ -203,4 +218,4 @@ class Mesh:
 if __name__ == "__main__":
     mesh = Mesh("./Prob1_thermal_convdiff/")
     mesh.solve()
-    mesh.writeVTKfile()
+    mesh.getUnstructuredGrid()
