@@ -1,9 +1,8 @@
-import numpy as np
-from numpy import array, cos, sin
-from material import materials
+import os
+from numpy import array, cos, sin, zeros, loadtxt
 from scipy.sparse import lil_matrix
 from scipy.sparse.linalg import spsolve
-
+from material import materials
 
 ###############################################################################
 
@@ -49,7 +48,7 @@ class Element:
 
     def calcDiffMat(self):
         k = self.region.calcTensor()
-        self.Ke = np.zeros((3,3))
+        self.Ke = zeros((3,3))
         for j in range(3):
             coefj = array([[self.b[j]],[self.c[j]]])
             for i in range(3):
@@ -68,7 +67,7 @@ class Mesh:
     def solve(self):
 
         NN = len(self.node)
-        rhs = np.zeros(NN)
+        rhs = zeros(NN)
         K = lil_matrix((NN,NN))
 
         # loop through all the elements
@@ -98,22 +97,20 @@ class Mesh:
 
     def readFiles(self):
 
-        import os
-
         self.node = []
         self.region = []
         self.element = []
 
         # read nodes
         filename = os.path.join(self.dirname,"nodes.txt")
-        dtype = [('x',np.float64),('y',np.float64)]
-        coors = np.loadtxt(filename,dtype=dtype)
+        dtype = [('x',float),('y',float)]
+        coors = loadtxt(filename,dtype=dtype)
         for id, c in enumerate(coors):
             self.node.append(Node(id,c['x'],c['y']))
 
         # read boundary values
         fvals = os.path.join(self.dirname,"uconsvals.txt")
-        vals = np.loadtxt(fvals,unpack=True)[2]
+        vals = loadtxt(fvals,unpack=True)[2]
         fboundelems = open(os.path.join(self.dirname,"ucons.txt"))
         for line in fboundelems:
             line = line.split()
@@ -145,7 +142,6 @@ class Mesh:
     #----------------------------------------------------------------------
 
     def readSolution(self):
-        import os
         fsolution = open(os.path.join(self.dirname,"solu2.txt"))
         for node in self.node:
             node.value = float(fsolution.readline())
@@ -168,7 +164,6 @@ class Mesh:
 
     def getVtkUnstructuredGrid(self):
         import vtk
-
         ugrid = vtk.vtkUnstructuredGrid()
 
         # insert point and point data
@@ -181,8 +176,6 @@ class Mesh:
         ugrid.GetPointData().SetScalars(array)
 
         #insert cells and cell data
-        celldat = vtk.vtkFloatArray()
-        celldat.InsertNextValue(11)
         for e in self.element:
             cell = vtk.vtkIdList()
             for i in [0,1,2]:
