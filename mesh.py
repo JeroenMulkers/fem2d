@@ -151,6 +151,21 @@ class Mesh:
             node.value = float(fsolution.readline())
         fsolution.close()
 
+    def showSolution(self):
+        from mpl_toolkits.mplot3d import Axes3D
+        from matplotlib import cm, pyplot
+        x,y,z,tri = [],[],[],[]
+        for n in self.node:
+            x.append(n.x)
+            y.append(n.y)
+            z.append(n.value)
+        for e in self.element:
+            tri.append([n.id for n in e.node])
+        fig = pyplot.figure()
+        ax = fig.gca(projection='3d')
+        ax.plot_trisurf(x, y, tri, z, cmap=cm.jet, linewidth=0.2)
+        pyplot.show()
+
     def getUnstructuredGrid(self):
         import vtk
 
