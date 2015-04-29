@@ -25,9 +25,9 @@ class Region:
         self.orientation = orientation
         self.source = source
 
-    def calcTensor(self,solution=None):
+    def calcTensor(self,property,solution=None):
         a = self.orientation
-        v = self.material['PERMEABILITY'].value()
+        v = self.material[property].value()
         T = array([[cos(a),-sin(a)],[sin(a),cos(a)]])
         return T*v*T.transpose()
 
@@ -46,8 +46,8 @@ class Element:
     def calcSourceVec(self):
         return 3*[self.region.source*self.area/3]
 
-    def calcDiffMat(self):
-        k = self.region.calcTensor()
+    def calcDiffMat(self,property):
+        k = self.region.calcTensor(property)
         self.Ke = zeros((3,3))
         for j in range(3):
             coefj = array([[self.b[j]],[self.c[j]]])
@@ -74,7 +74,7 @@ class Mesh:
         for e in self.element:
 
             # initial Ke and fe
-            Ke = e.calcDiffMat()
+            Ke = e.calcDiffMat('PERMEABILITY')
             Se = e.calcSourceVec()
 
             for i,ni in enumerate(e.node):
