@@ -19,15 +19,15 @@ class Node:
 
 class Region:
 
-    def __init__(self,id,material,orientation,source=0.0):
+    def __init__(self,id,materialname,orientation,source=0.0):
         self.id = id
-        self.material = material
+        self.material = materials[materialname]
         self.orientation = orientation
         self.source = source
 
     def calcTensor(self,solution=None):
         a = self.orientation
-        v = materials[self.material].permeability
+        v = self.material['PERMEABILITY'].value()
         T = array([[cos(a),-sin(a)],[sin(a),cos(a)]])
         return T*v*T.transpose()
 
