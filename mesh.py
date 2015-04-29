@@ -1,5 +1,5 @@
 import os
-from numpy import array, cos, sin, zeros, loadtxt
+from scipy import array, cos, sin, zeros, loadtxt
 from scipy.sparse import lil_matrix
 from scipy.sparse.linalg import spsolve
 from material import materials
