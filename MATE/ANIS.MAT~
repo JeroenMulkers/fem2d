@@ -1,0 +1,11 @@
+PERMEABILITY
+linear
+anisotropic
+1000
+10
+
+CONDUCTIVITY
+linear
+isotropic
+0.0
+

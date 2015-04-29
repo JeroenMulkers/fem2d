@@ -1,0 +1,9 @@
+PERMEABILITY
+linear
+isotropic
+1.0
+
+CONDUCTIVITY
+linear
+isotropic
+0.0
