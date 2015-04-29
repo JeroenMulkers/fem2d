@@ -188,7 +188,10 @@ class Mesh:
         import vtk
         ugrid = self.getVtkUnstructuredGrid()
         writer = vtk.vtkUnstructuredGridWriter()
-        writer.SetInputData(ugrid)
+        if vtk.vtkVersion.GetVTKMajorVersion() <= 5:
+            writer.SetInput(ugrid)
+        else:
+            writer.SetInputData(ugrid)
         writer.SetFileName(filename)
         writer.Write()
 
