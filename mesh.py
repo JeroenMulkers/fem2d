@@ -24,12 +24,12 @@ class Region:
         self.material = materials[materialname]
         self.orientation = orientation
         self.source = source
+        self.T = array([[cos(orientation),-sin(orientation)],
+                        [sin(orientation), cos(orientation)]])
 
     def calcTensor(self,property,solution=None):
-        a = self.orientation
         v = self.material[property].value()
-        T = array([[cos(a),-sin(a)],[sin(a),cos(a)]])
-        return T*v*T.transpose()
+        return self.T * v * self.T.transpose()
 
 ###############################################################################
 
