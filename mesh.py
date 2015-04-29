@@ -27,8 +27,8 @@ class Region:
         self.T = array([[cos(orientation),-sin(orientation)],
                         [sin(orientation), cos(orientation)]])
 
-    def calcTensor(self,property,solution=None):
-        v = self.material[property].value()
+    def calcTensor(self,matProp,solution=None):
+        v = self.material[matProp].value()
         return self.T * v * self.T.transpose()
 
 ###############################################################################
@@ -46,8 +46,8 @@ class Element:
     def calcSourceVec(self):
         return 3*[self.region.source*self.area/3]
 
-    def calcDiffMat(self,property):
-        k = self.region.calcTensor(property)
+    def calcDiffMat(self,matProp):
+        k = self.region.calcTensor(matProp)
         self.Ke = zeros((3,3))
         for j in range(3):
             coefj = array([[self.b[j]],[self.c[j]]])
