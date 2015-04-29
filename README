@@ -1,0 +1,8 @@
+2dfem is a 2 dimensional finite element solver written in python.
+
+Dependencies:
+  - python (tested with python 2.7.6)
+  - scipy  (tested with scipy 0.13.3)
+  - one of the following packages to show the results
+     - matplotlib
+     - vtk (the python wrappers)
