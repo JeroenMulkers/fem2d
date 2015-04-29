@@ -1,6 +1,27 @@
-from numpy import array, cos, sin
+
+###############################################################################
+#
+# This module creates a material library based on the material files in ./MATE
+#
+# The material library is a dictionary of materials which are dictionaries
+# of properties
+#
+# This should be used as follows:
+#
+#    from material import materials
+#    materials['materialname']['propertyname'].value(solution)
+#    materials['materialname']['propertyname'].isIsotropic
+#    materials['materialname']['propertyname'].isLinear
+#
+###############################################################################
+
+from numpy import array
+
+###############################################################################
 
 class MatProp:
+
+    """ Material property class """
 
     def __init__(self,isLinear,isIsotropic,values):
         self.isLinear = isLinear
@@ -8,14 +29,22 @@ class MatProp:
         self.values = values
 
     def value(self,sol=None):
+
+        """ returns the value which may depend on the solution """
+
         if self.isLinear and self.isIsotropic:
             return array([[self.values],[self.values]])
         elif self.isLinear and not self.isIsotropic:
             return array([[self.values[0]],[self.values[1]]])
 
+#TODO: implement MatProp.value correctly for non linear properties
+
 ###############################################################################
 
 def readMaterialFile(filename):
+
+    """ reads a .MAT file and returns a material """
+
     material = {}
     fid = open(filename,'r')
     while True:
@@ -43,6 +72,9 @@ def readMaterialFile(filename):
                 material[propname] = MatProp(isLinear,isIsotropic,values)
     fid.close()
     return material
+
+###############################################################################
+# building of the material library
 
 names = ["ANIS","AIR","CU","FE","FLUI"]
 materials = {}
