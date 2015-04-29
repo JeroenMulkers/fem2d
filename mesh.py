@@ -19,16 +19,16 @@ class Node:
 
 class Region:
 
-    def __init__(self,id,materialname,orientation,source=0.0):
+    def __init__(self,id,matName,orientation,source=0.0):
         self.id = id
-        self.material = materials[materialname]
+        self.matName = matName
         self.orientation = orientation
         self.source = source
         self.T = array([[cos(orientation),-sin(orientation)],
                         [sin(orientation), cos(orientation)]])
 
     def calcTensor(self,matProp,solution=None):
-        v = self.material[matProp].value()
+        v = materials[self.matName][matProp].value(solution)
         return self.T * v * self.T.transpose()
 
 ###############################################################################
