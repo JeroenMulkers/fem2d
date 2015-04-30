@@ -53,7 +53,7 @@ def readMaterialFile(filename):
             break
         if len(line.split()) == 1:
             propname = line.split()[0]
-            if propname in ["PERMEABILITY","CONDUCTIVITY"]:
+            if propname in ["PERMEABILITY","CONDUCTIVITY","DIFFUSIVITY"]:
                 line1 = fid.readline().split()[0]
                 line2 = fid.readline().split()[0]
                 isLinear = True if (line1=="linear") else False
