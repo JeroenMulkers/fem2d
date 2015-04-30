@@ -68,7 +68,7 @@ def readMaterialFile(filename):
                     values = []
                     nDataPoints = int(fid.readline().split()[0])
                     for i in range(nDataPoints):
-                        values.append( fid.readline() )
+                        values.append([ float(v) for v in fid.readline().split() ])
                 material[propname] = MatProp(isLinear,isIsotropic,values)
     fid.close()
     return material
