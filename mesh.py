@@ -97,55 +97,44 @@ class Mesh:
 
     def readFiles(self):
 
+        # read nodes and the boundary values
         self.node = []
-        self.region = []
-        self.element = []
-
-        # read nodes
-        filename = os.path.join(self.dirname,"nodes.txt")
-        dtype = [('x',float),('y',float)]
-        coors = loadtxt(filename,dtype=dtype)
-        for id, c in enumerate(coors):
-            self.node.append(Node(id,c['x'],c['y']))
-
-        # read boundary values
-        fvals = os.path.join(self.dirname,"uconsvals.txt")
-        vals = loadtxt(fvals,unpack=True)[2]
-        fboundelems = open(os.path.join(self.dirname,"ucons.txt"))
-        for line in fboundelems:
-            line = line.split()
-            self.node[int(line[0])-1].boundary = True
-            self.node[int(line[0])-1].value = vals[int(line[2])-1]
-        fboundelems.close()
+        with open(os.path.join(self.dirname,"nodes.txt")) as fnodes:
+            for id,line in enumerate(fnodes.readlines()):
+                x,y = line.split()
+                self.node.append(Node(id,float(x),float(y)))
+        vals = loadtxt(os.path.join(self.dirname,"uconsvals.txt"),unpack=True)[2]
+        with open(os.path.join(self.dirname,"ucons.txt")) as fboundelems:
+            for line in fboundelems:
+                line = line.split()
+                self.node[int(line[0])-1].boundary = True
+                self.node[int(line[0])-1].value = vals[int(line[2])-1]
 
         # read regions (materials and orientations)
-        forient = open(os.path.join(self.dirname,"orientations.txt"))
-        fmaterial = open(os.path.join(self.dirname,"materials.txt"))
-        fsources = open(os.path.join(self.dirname,"sources.txt"))
-        for id, (orient, materialname, j) in enumerate(zip(forient,fmaterial,fsources)):
-            materialname = materialname.split()[0]
-            j = j.split()[0]
-            self.region.append( Region(id,materialname,float(orient),float(j)) )
-        forient.close()
-        fmaterial.close()
-        fsources.close()
+        self.region = []
+        with open(os.path.join(self.dirname,"orientations.txt")) as forient:
+            with open(os.path.join(self.dirname,"materials.txt")) as fmaterial:
+                with open(os.path.join(self.dirname,"sources.txt")) as fsources:
+                    for id,(orient,matName,j) in enumerate(zip(forient,fmaterial,fsources)):
+                        matName = matName.split()[0]
+                        j = j.split()[0]
+                        self.region.append( Region(id,matName,float(orient),float(j)) )
 
         # read elements
-        felements = open(os.path.join(self.dirname,"elems.txt"))
-        for line in felements:
-            line = line.split()
-            nodes = [ self.node[int(line[i])-1] for i in range(3) ]
-            region = self.region[int(line[3])-1]
-            self.element.append( Element(nodes,region) )
-        felements.close()
+        self.element = []
+        with open(os.path.join(self.dirname,"elems.txt")) as felements:
+            for line in felements.readlines():
+                line = line.split()
+                nodes = [ self.node[int(line[i])-1] for i in range(3) ]
+                region = self.region[int(line[3])-1]
+                self.element.append( Element(nodes,region) )
 
     #----------------------------------------------------------------------
 
     def readSolution(self):
-        fsolution = open(os.path.join(self.dirname,"solu2.txt"))
-        for node in self.node:
-            node.value = float(fsolution.readline())
-        fsolution.close()
+        with open(os.path.join(self.dirname,"solu2.txt")) as fsolution:
+            for node in self.node:
+                node.value = float(fsolution.readline())
 
     def showSolution(self):
         from mpl_toolkits.mplot3d import Axes3D
