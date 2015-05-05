@@ -104,6 +104,10 @@ class Mesh:
                 x,y = line.split()
                 self.node.append(Node(id,float(x),float(y)))
         vals = loadtxt(os.path.join(self.dirname,"uconsvals.txt"),unpack=True)[2]
+        try:
+            vals = list(vals)
+        except:
+            vals = [vals]
         with open(os.path.join(self.dirname,"ucons.txt")) as fboundelems:
             for line in fboundelems:
                 line = line.split()
@@ -187,7 +191,15 @@ class Mesh:
 ###############################################################################
 
 if __name__ == "__main__":
-    mesh = Mesh("./Prob1_thermal_convdiff/")
+
+    import sys
+
+    try:
+        mesh = Mesh(sys.argv[1])
+    except:
+        print "Something went wrong in your problem definition"
+        exit()
+
     mesh.solve()
     mesh.showSolution()
     mesh.writeVTKfile("out.vtk")
