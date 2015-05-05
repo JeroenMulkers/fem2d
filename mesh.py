@@ -1,5 +1,5 @@
 import os
-from scipy import array, cos, sin, zeros, loadtxt
+from scipy import array, cos, sin, zeros, loadtxt, rand
 from scipy.sparse import lil_matrix
 from scipy.sparse.linalg import spsolve
 from material import materials
@@ -13,7 +13,10 @@ class Node:
         self.x = x
         self.y = y
         self.boundary = boundary
-        self.value = value
+        if value is None:
+            self.value = rand()
+        else:
+            self.value = value
 
 ###############################################################################
 
@@ -47,7 +50,8 @@ class Element:
         return 3*[self.region.source*self.area/3]
 
     def calcDiffMat(self,matProp):
-        k = self.region.calcTensor(matProp)
+        value = sum([n.value for n in self.node])/3
+        k = self.region.calcTensor(matProp,solution=value)
         self.Ke = zeros((3,3))
         for j in range(3):
             coefj = array([[self.b[j]],[self.c[j]]])
@@ -65,7 +69,6 @@ class Element:
                 coefi = array([self.b[i],self.c[i]])
                 self.Ce[j,i] = -coefi.dot(array([[vx],[vy]]))/6
         return self.Ce
-
 
 ###############################################################################
 
