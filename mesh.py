@@ -56,6 +56,17 @@ class Element:
                 self.Ke[j,i] = -coefi.dot(k).dot(coefj)/(4*self.area)
         return self.Ke
 
+    def calcConvMat(self,vx,vy):
+        self.Ce = zeros((3,3))
+        if vx == 0 and vy == 0:
+            return self.Ce
+        for j in range(3):
+            for i in range(3):
+                coefi = array([self.b[i],self.c[i]])
+                self.Ce[j,i] = -coefi.dot(array([[vx],[vy]]))/6
+        return self.Ce
+
+
 ###############################################################################
 
 class Mesh:
@@ -64,7 +75,7 @@ class Mesh:
         self.dirname = dirname
         self.readFiles()
 
-    def solve(self):
+    def solve(self,vx=0.,vy=0.):
 
         NN = len(self.node)
         rhs = zeros(NN)
@@ -74,7 +85,7 @@ class Mesh:
         for e in self.element:
 
             # initial Ke and fe
-            Ke = e.calcDiffMat('PERMEABILITY')
+            Ke = e.calcDiffMat('PERMEABILITY') + e.calcConvMat(vx,vy)
             Se = e.calcSourceVec()
 
             for i,ni in enumerate(e.node):
