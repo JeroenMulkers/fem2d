@@ -75,7 +75,7 @@ class Mesh:
         self.dirname = dirname
         self.readFiles()
 
-    def solve(self,vx=0.,vy=0.):
+    def solve(self,divMatProp,vx=0.,vy=0.):
 
         NN = len(self.node)
         rhs = zeros(NN)
@@ -85,7 +85,7 @@ class Mesh:
         for e in self.element:
 
             # initial Ke and fe
-            Ke = e.calcDiffMat('PERMEABILITY') + e.calcConvMat(vx,vy)
+            Ke = e.calcDiffMat(divMatProp) + e.calcConvMat(vx,vy)
             Se = e.calcSourceVec()
 
             for i,ni in enumerate(e.node):
@@ -211,6 +211,6 @@ if __name__ == "__main__":
         print "Something went wrong in your problem definition"
         exit()
 
-    mesh.solve()
+    mesh.solve("PERMEABILITY")
     mesh.showSolution()
     mesh.writeVTKfile("out.vtk")
