@@ -36,8 +36,11 @@ class MatProp:
             return array([[self.values],[self.values]])
         elif self.isLinear and not self.isIsotropic:
             return array([[self.values[0]],[self.values[1]]])
-
-#TODO: implement MatProp.value correctly for non linear properties
+        elif not self.isLinear and self.isIsotropic:
+            for x,y in self.values:
+                if x>sol: break
+                xprev, yprev = x,y
+            return yprev+(x-sol)*(y-yprev)/(x-xprev) # linear interpolation
 
 ###############################################################################
 
