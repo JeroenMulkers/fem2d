@@ -147,8 +147,6 @@ class Mesh:
                 region = self.region[int(line[3])-1]
                 self.element.append( Element(nodes,region) )
 
-    #----------------------------------------------------------------------
-
     def readSolution(self):
         with open(os.path.join(self.dirname,"solu2.txt")) as fsolution:
             for node in self.node:
@@ -172,39 +170,6 @@ class Mesh:
             pyplot.tripcolor(x, y, tri, z, cmap=cm.jet,  edgecolors='black')
         pyplot.show()
 
-    def getVtkUnstructuredGrid(self):
-        import vtk
-        ugrid = vtk.vtkUnstructuredGrid()
-
-        # insert point and point data
-        points = vtk.vtkPoints()
-        array  = vtk.vtkFloatArray()
-        for n in self.node:
-            points.InsertPoint(n.id,n.x,n.y,0.0)
-            array.InsertNextValue(n.value)
-        ugrid.SetPoints(points)
-        ugrid.GetPointData().SetScalars(array)
-
-        #insert cells and cell data
-        for e in self.element:
-            cell = vtk.vtkIdList()
-            for i in [0,1,2]:
-                cell.InsertNextId(e.node[i].id)
-            ugrid.InsertNextCell(vtk.VTK_TRIANGLE,cell)
-
-        return ugrid
-
-    def writeVTKfile(self,filename):
-        import vtk
-        ugrid = self.getVtkUnstructuredGrid()
-        writer = vtk.vtkUnstructuredGridWriter()
-        if vtk.vtkVersion.GetVTKMajorVersion() <= 5:
-            writer.SetInput(ugrid)
-        else:
-            writer.SetInputData(ugrid)
-        writer.SetFileName(filename)
-        writer.Write()
-
 ###############################################################################
 
 if __name__ == "__main__":
@@ -219,4 +184,3 @@ if __name__ == "__main__":
 
     mesh.solve("PERMEABILITY")
     mesh.showSolution()
-    #mesh.writeVTKfile("out.vtk")
