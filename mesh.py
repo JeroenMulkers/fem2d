@@ -78,19 +78,15 @@ class Mesh:
         self.dirname = dirname
         self.readFiles()
 
-    def solve(self,divMatProp,vx=0.,vy=0.):
+    def stiffnessMatrixAndRhs(self,divMatProp,vx=0.,vy=0.):
 
         NN = len(self.node)
         rhs = zeros(NN)
         K = lil_matrix((NN,NN))
 
-        # loop through all the elements
         for e in self.element:
-
-            # initial Ke and fe
             Ke = e.calcDiffMat(divMatProp) + e.calcConvMat(vx,vy)
             Se = e.calcSourceVec()
-
             for i,ni in enumerate(e.node):
                 rhs[ni.id] -= Se[i]
                 if ni.boundary:
@@ -104,7 +100,11 @@ class Mesh:
                         else:
                             K[ni.id,nj.id] += Ke[i,j]
 
-        # solve the system of linear equations and put solution on nodes
+        return K,rhs
+
+    def solve(self,divMatProp,vx=0.,vy=0.):
+
+        K, rhs = self.stiffnessMatrixAndRhs(divMatProp,vx,vy)
         solution = spsolve(K.tocsr(),rhs)
         for i in range(len(solution)):
             self.node[i].value = solution[i]
@@ -154,7 +154,7 @@ class Mesh:
             for node in self.node:
                 node.value = float(fsolution.readline())
 
-    def showSolution(self):
+    def showSolution(self,dim=2):
         from mpl_toolkits.mplot3d import Axes3D
         from matplotlib import cm, pyplot
         x,y,z,tri = [],[],[],[]
@@ -165,8 +165,11 @@ class Mesh:
         for e in self.element:
             tri.append([n.id for n in e.node])
         fig = pyplot.figure()
-        ax = fig.gca(projection='3d')
-        ax.plot_trisurf(x, y, tri, z, cmap=cm.jet, linewidth=0.2)
+        if dim == 3:
+            ax = fig.gca(projection='3d')
+            ax.plot_trisurf(x, y, tri, z, cmap=cm.jet, linewidth=0.2)
+        elif dim == 2:
+            pyplot.tripcolor(x, y, tri, z, cmap=cm.jet,  edgecolors='black')
         pyplot.show()
 
     def getVtkUnstructuredGrid(self):
@@ -216,4 +219,4 @@ if __name__ == "__main__":
 
     mesh.solve("PERMEABILITY")
     mesh.showSolution()
-    mesh.writeVTKfile("out.vtk")
+    #mesh.writeVTKfile("out.vtk")
