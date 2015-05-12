@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os
 from scipy import array, sqrt, cos, sin, zeros, rand
 from scipy.sparse import lil_matrix
