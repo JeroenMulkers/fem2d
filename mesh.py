@@ -1,5 +1,5 @@
 import os
-from scipy import array, cos, sin, zeros, rand
+from scipy import array, sqrt, cos, sin, zeros, rand
 from scipy.sparse import lil_matrix
 from scipy.sparse.linalg import spsolve
 from material import materials
@@ -69,6 +69,12 @@ class Element:
                 coefi = array([self.b[i],self.c[i]])
                 self.Ce[j,i] = -coefi.dot(array([[vx],[vy]]))/6
         return self.Ce
+
+    def grad(self):
+        z = [ n.value for n in self.node ]
+        gradx = z[0]*self.b[0] + z[1]*self.b[1] + z[2]*self.b[2]
+        grady = z[0]*self.c[0] + z[1]*self.c[1] + z[2]*self.c[2]
+        return sqrt(gradx*gradx + grady*grady)/(2*self.area)
 
 ###############################################################################
 
@@ -152,20 +158,30 @@ class Mesh:
     def showSolution(self,dim=2):
         from mpl_toolkits.mplot3d import Axes3D
         from matplotlib import cm, pyplot
-        x,y,z,tri = [],[],[],[]
+        x,y,tri,solution,grad = [],[],[],[],[]
         for n in self.node:
             x.append(n.x)
             y.append(n.y)
-            z.append(n.value)
+            solution.append(n.value)
         for e in self.element:
             tri.append([n.id for n in e.node])
-        fig = pyplot.figure()
-        if dim == 3:
+            grad.append(e.grad())
+        if dim==2:
+            pyplot.figure(figsize=(17,6))
+            pyplot.subplot(1,2,1)
+            pyplot.title("Solution")
+            pyplot.tripcolor(x, y, tri, solution, cmap=cm.jet,  edgecolors='black')
+            pyplot.colorbar()
+            pyplot.subplot(1,2,2)
+            pyplot.title("Gradient")
+            pyplot.tripcolor(x, y, tri, grad, cmap=cm.jet,  edgecolors='black')
+            pyplot.colorbar()
+        elif dim==3:
+            fig = pyplot.figure()
             ax = fig.gca(projection='3d')
             ax.plot_trisurf(x, y, tri, z, cmap=cm.jet, linewidth=0.2)
-        elif dim == 2:
-            pyplot.tripcolor(x, y, tri, z, cmap=cm.jet,  edgecolors='black')
         pyplot.show()
+
 
 ###############################################################################
 
